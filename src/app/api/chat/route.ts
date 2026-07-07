@@ -413,6 +413,11 @@ function pickFallback(query: string, lang: Lang): string {
    return responses[lang].default;
 }
 
+function sanitizeInput(text: string): string {
+   if (typeof text !== "string") return "";
+   return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 export async function POST(request: Request) {
    try {
       const { messages, lang = "en" } = await request.json();
@@ -422,7 +427,35 @@ export async function POST(request: Request) {
          return NextResponse.json({ error: "Invalid messages array" }, { status: 400 });
       }
 
-      const lastUserMessage = messages[messages.length - 1]?.content || "";
+      // Limit messages list size to prevent excessive payload or loop exploits
+      if (messages.length > 20) {
+         return NextResponse.json({ error: "Too many messages in history" }, { status: 400 });
+      }
+
+      // Validate each message structure and content length
+      for (const m of messages) {
+         if (!m || typeof m !== "object") {
+            return NextResponse.json({ error: "Invalid message format" }, { status: 400 });
+         }
+         if (m.role !== "user" && m.role !== "assistant") {
+            return NextResponse.json({ error: "Invalid message role" }, { status: 400 });
+         }
+         if (typeof m.content !== "string") {
+            return NextResponse.json({ error: "Message content must be a string" }, { status: 400 });
+         }
+         // Limit length of messages to prevent API abuse and large payloads
+         if (m.content.length > 1000) {
+            return NextResponse.json({ error: "Message content exceeds limit of 1000 characters" }, { status: 400 });
+         }
+      }
+
+      // Sanitize inputs
+      const sanitizedMessages = messages.map((m: any) => ({
+         role: m.role,
+         content: sanitizeInput(m.content)
+      }));
+
+      const lastUserMessage = sanitizedMessages[sanitizedMessages.length - 1]?.content || "";
       const apiKey = process.env.GEMINI_API_KEY;
 
       if (!apiKey) {
@@ -440,7 +473,7 @@ export async function POST(request: Request) {
                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-               contents: messages.map((m: any) => ({
+               contents: sanitizedMessages.map((m: any) => ({
                   role: m.role === "user" ? "user" : "model",
                   parts: [{ text: m.content }]
                })),
@@ -494,8 +527,9 @@ For every answer, include:
          demoMode: false
       });
    } catch (error: any) {
+      console.error("Chat API error details omitted from response for security.");
       return NextResponse.json(
-         { error: error.message || "Internal Server Error" },
+         { error: "Failed to process chat request. Please try again later." },
          { status: 500 }
       );
    }

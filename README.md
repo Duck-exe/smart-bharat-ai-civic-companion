@@ -1,8 +1,8 @@
 # Smart Bharat – AI Civic Companion 🇮🇳
 
-**Smart Bharat – AI Civic Companion** is a production-ready Next.js web application built using the App Router. It serves as an intelligent AI-powered portal designed to simplify civic interactions, answer citizen welfare scheme queries, generate document requirement checklists, and facilitate public issue reporting and tracking.
+**Smart Bharat – AI Civic Companion** is a production-ready, highly secure, and accessible Next.js web application built using the App Router. It serves as an intelligent AI-powered portal designed to simplify civic interactions, answer citizen welfare scheme queries, generate document requirement checklists, and facilitate public issue reporting and tracking.
 
-This project was built for the **PromptWars** challenge and is fully optimized for one-click deployment on **Vercel**.
+This project was built for the **PromptWars** challenge and is optimized for one-click deployment on **Vercel** with full test suites and robust security headers.
 
 ---
 
@@ -38,12 +38,59 @@ This project was built for the **PromptWars** challenge and is fully optimized f
 ---
 
 ## 🛠️ Technology Stack
-* **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
-* **Library**: [React 19](https://react.dev/)
-* **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+* **Framework**: Next.js 16 (App Router)
+* **Library**: React 19
+* **Styling**: Tailwind CSS v4
 * **API Engine**: Google Gemini API via native edge fetch (minimizing bundle overhead)
+* **Testing**: Vitest & React Testing Library with jsdom
 * **Fonts**: `Outfit` and `Inter` (via `next/font`)
 * **State & Storage**: Client-side state & `localStorage` API
+
+---
+
+## ⚙️ Architecture & AI Integration Workflow
+
+### AI Workflow
+1. **Request Reception**: The user submits their prompt in English, Hindi, or Telugu in the chat interface.
+2. **Validation & Sanitization**: The request is routed to the POST endpoint `/api/chat`. The payload is validated (length ≤ 1000 characters, message history ≤ 20 messages, valid role attributes). The content is sanitized of `<` and `>` tags to prevent script injection.
+3. **Execution**: If `GEMINI_API_KEY` is present, native `fetch` requests the `gemini-1.5-flash` model directly. System instructions are injected specifying scope (Indian civic services only), formatting style (Markdown headings, lists), and language codes.
+4. **Fallback**: If the API key is not configured or the fetch fails, an offline matcher searches keywords and returns optimized offline answers, preventing crashes.
+5. **Output**: The sanitized response markdown is returned to the client and dynamically formatted into HTML in the dashboard.
+
+---
+
+## 🛡️ Security Policies
+* **Security Headers**: Standard headers configured in `next.config.ts` including:
+  * `X-Frame-Options: DENY` to prevent clickjacking.
+  * `X-Content-Type-Options: nosniff` to block MIME sniffing.
+  * `Referrer-Policy: strict-origin-when-cross-origin`.
+  * `Strict-Transport-Security` to force HTTPS.
+  * `Content-Security-Policy` to lock script sources and endpoint connections.
+* **API Protection**: Catch blocks in the chat route intercept stack traces and raw error objects, returning generic warnings to prevent API key leaks.
+
+---
+
+## ♿ Accessibility (a11y) Features
+* **Semantic HTML**: Page content is enclosed in structural `<header>`, `<main>`, `<nav>`, and `<footer>` containers.
+* **Label Association**: Every text input, selector dropdown, and textarea is associated with an explicit `<label>` tag using matching `id` and `htmlFor` properties.
+* **Keyboard Navigation**: Interactive dashboard cards have been converted from raw `div` tags to accessible, keyboard-focusable HTML `<button>` elements.
+* **Aria Attributes**: All icon-only buttons include descriptive `aria-label` tags, and decorative SVGs are annotated with `aria-hidden="true"` to prevent screen reader noise.
+
+---
+
+## 🧪 Testing Setup
+The application is backed by a full test suite built on **Vitest** and **React Testing Library** under a `jsdom` simulated browser environment.
+
+### Run Tests
+```bash
+npm run test
+```
+The test suite validates:
+1. **Dashboard Render**: Verifies welcome screens are properly generated.
+2. **Language Switch**: Toggles language to Hindi and checks translation replacements.
+3. **Service Finder search & modal**: Searches services and verifies details overlay.
+4. **Complaint submission & storage**: Submits complaints and checks `localStorage` persistence.
+5. **AI Assistant conversation**: Simulates submitting inputs and mocking network responses.
 
 ---
 
@@ -60,11 +107,10 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Create a `.env.local` file in the root directory and add your Gemini API Key:
+Create a `.env.local` file in the root directory:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-*(If left blank, the app will automatically run in demo mode with pre-baked responses).*
 
 ### 4. Run Development Server
 ```bash
@@ -82,33 +128,17 @@ npm run build
 ```
 
 ### Deploy to Vercel
-This application is ready to be deployed to Vercel without any configurations.
-1. Push this repository to GitHub/GitLab/Bitbucket.
-2. Link the repository to your Vercel Account.
-3. In the environment variables section, set:
-   * `GEMINI_API_KEY` = `[Your Google Gemini Developer API Key]`
-4. Click **Deploy**.
+1. Link your repository to Vercel.
+2. Configure `GEMINI_API_KEY` as an Environment Variable.
+3. Click **Deploy**.
 
 ---
 
-## 📂 Project Structure
-```
-smart-bharat-ai-civic-companion/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── chat/
-│   │   │       └── route.ts      # Gemini API route & demo fallback logic
-│   │   ├── globals.css           # Custom CSS & Tailwind v4 theme styling
-│   │   ├── layout.tsx            # Global HTML wrapper (Google Fonts configuration)
-│   │   └── page.tsx              # Main dashboard wrapper & core tab components
-│   └── lib/
-│       ├── servicesData.ts       # Structured multi-lingual database of Indian public services
-│       └── translations.ts       # English, Hindi, and Telugu localization dictionaries
-├── public/                       # Static public assets
-├── LICENSE                       # MIT License
-└── package.json                  # Next.js & React dependencies
-```
+## ⚠️ Limitations & Scope
+* **Civic Context Boundary**: The AI Companion is strictly configured to refuse answers outside of Indian public utilities, documents, and schemes.
+* **State Persistence**: Civic complaints are stored in `localStorage`, meaning they are local to the client's current browser.
+
+---
 
 ## ⚖️ License
 Distributed under the MIT License. See `LICENSE` for more information.

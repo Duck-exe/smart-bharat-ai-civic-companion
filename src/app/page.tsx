@@ -347,9 +347,10 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-900 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Logo */}
-          <div
-            className="flex items-center gap-3 cursor-pointer group"
+          <button
+            className="flex items-center gap-3 cursor-pointer group text-left focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded-xl"
             onClick={() => openTab("dashboard")}
+            aria-label="Smart Bharat Home Dashboard"
           >
             <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-tr from-orange-500 via-white to-emerald-600 p-[2px] flex items-center justify-center shadow-md shadow-orange-500/10 group-hover:scale-105 transition-transform">
               <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
@@ -361,6 +362,7 @@ export default function DashboardPage() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth={1.5}
+                  aria-hidden="true"
                 >
                   <circle cx="12" cy="12" r="9" strokeDasharray="3 2" />
                   <circle cx="12" cy="12" r="3" />
@@ -376,7 +378,7 @@ export default function DashboardPage() {
                 {t.subtitle}
               </p>
             </div>
-          </div>
+          </button>
 
           {/* Quick Nav Links & Language selector */}
           <div className="flex items-center gap-2 sm:gap-4">
@@ -384,13 +386,15 @@ export default function DashboardPage() {
             {activeTab !== "dashboard" && (
               <button
                 onClick={() => openTab("dashboard")}
-                className="hidden md:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 hover:text-white transition-colors text-slate-400"
+                className="hidden md:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 hover:text-white transition-colors text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                aria-label="Back to dashboard"
               >
                 <svg
                   className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -412,6 +416,7 @@ export default function DashboardPage() {
                     ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
+                aria-label="Switch language to English"
               >
                 EN
               </button>
@@ -422,6 +427,7 @@ export default function DashboardPage() {
                     ? "bg-slate-100 text-slate-950 font-semibold shadow"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
+                aria-label="Switch language to Hindi"
               >
                 हिन्दी
               </button>
@@ -432,6 +438,7 @@ export default function DashboardPage() {
                     ? "bg-gradient-to-r from-emerald-600 to-green-500 text-white shadow"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
+                aria-label="Switch language to Telugu"
               >
                 తెలుగు
               </button>
@@ -493,16 +500,17 @@ export default function DashboardPage() {
             </div>
 
             {/* DASHBOARD MODULE CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto w-full mt-4">
+            <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto w-full mt-4" aria-label="Civic Companion Features">
               {/* CARD 1: AI ASSISTANT */}
-              <div
+              <button
                 onClick={() => openTab("aiAssistant")}
-                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-indigo relative overflow-hidden"
+                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-indigo relative overflow-hidden text-left w-full h-full border-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                aria-label="AI Civic Assistant. Ask schemes, services, PAN/Aadhaar updates, passports, or pensions."
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none"></div>
                 <div className="flex flex-col gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -522,21 +530,22 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between mt-6 text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
                   <span>{t.dashboard.viewAll}</span>
-                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </div>
+              </button>
 
               {/* CARD 2: SERVICE FINDER */}
-              <div
+              <button
                 onClick={() => openTab("serviceFinder")}
-                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-saffron relative overflow-hidden"
+                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-saffron relative overflow-hidden text-left w-full h-full border-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                aria-label="Service Finder. Search key details of standard services, eligibility conditions, processing timelines, and steps."
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl pointer-events-none"></div>
                 <div className="flex flex-col gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 border border-orange-500/20 group-hover:scale-110 transition-transform">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -556,21 +565,22 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between mt-6 text-xs font-bold text-orange-400 group-hover:text-orange-300">
                   <span>{t.dashboard.viewAll}</span>
-                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </div>
+              </button>
 
               {/* CARD 3: DOCUMENT ASSISTANT */}
-              <div
+              <button
                 onClick={() => openTab("documentAssistant")}
-                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-emerald relative overflow-hidden"
+                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-emerald relative overflow-hidden text-left w-full h-full border-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                aria-label="Document Checklist. Generate a document checklist for various citizen needs and discover exactly why they are required."
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none"></div>
                 <div className="flex flex-col gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -590,21 +600,22 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between mt-6 text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
                   <span>{t.dashboard.viewAll}</span>
-                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </div>
+              </button>
 
               {/* CARD 4: REPORT ISSUE */}
-              <div
+              <button
                 onClick={() => openTab("reportIssue")}
-                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-indigo relative overflow-hidden"
+                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-indigo relative overflow-hidden text-left w-full h-full border-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                aria-label="Report Public Issue. Report local civic issues to civic wards."
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none"></div>
                 <div className="flex flex-col gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -624,21 +635,22 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between mt-6 text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
                   <span>{t.dashboard.viewAll}</span>
-                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </div>
+              </button>
 
               {/* CARD 5: COMPLAINT TRACKER */}
-              <div
+              <button
                 onClick={() => openTab("trackComplaint")}
-                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-saffron relative overflow-hidden"
+                className="glass-card rounded-3xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between group glow-saffron relative overflow-hidden text-left w-full h-full border-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                aria-label="Track Complaint. Track the active status and history timeline of reported issues."
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl pointer-events-none"></div>
                 <div className="flex flex-col gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 border border-orange-500/20 group-hover:scale-110 transition-transform">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -658,12 +670,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between mt-6 text-xs font-bold text-orange-400 group-hover:text-orange-300">
                   <span>{t.dashboard.viewAll}</span>
-                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </div>
-            </div>
+              </button>
+            </nav>
           </div>
         )}
 
@@ -759,7 +771,11 @@ export default function DashboardPage() {
               }}
               className="p-4 border-t border-slate-800 bg-slate-900/40 flex items-center gap-3"
             >
+              <label htmlFor="ai-chat-input" className="sr-only">
+                {t.aiAssistant.chatPlaceholder}
+              </label>
               <input
+                id="ai-chat-input"
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
@@ -805,11 +821,15 @@ export default function DashboardPage() {
               {/* Search Box */}
               <div className="relative max-w-md w-full">
                 <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </span>
+                <label htmlFor="service-search-input" className="sr-only">
+                  {t.serviceFinder.searchPlaceholder}
+                </label>
                 <input
+                  id="service-search-input"
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -1020,10 +1040,11 @@ export default function DashboardPage() {
             {/* Dropdown selector */}
             <div className="glass-card rounded-2xl p-6 border-slate-800 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <label htmlFor="document-service-select" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                   {t.documentAssistant.selectLabel}
                 </label>
                 <select
+                  id="document-service-select"
                   value={selectedDocServiceId}
                   onChange={(e) => setSelectedDocServiceId(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-100"
@@ -1127,10 +1148,11 @@ export default function DashboardPage() {
             {!reportedId ? (
               <form onSubmit={handleSubmitIssue} className="glass-card rounded-2xl p-6 sm:p-8 border-slate-800 space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <label htmlFor="issue-type-select" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                     {t.reportIssue.typeLabel}
                   </label>
                   <select
+                    id="issue-type-select"
                     required
                     value={issueType}
                     onChange={(e) => setIssueType(e.target.value)}
@@ -1146,10 +1168,11 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <label htmlFor="issue-location-input" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                     {t.reportIssue.locationLabel}
                   </label>
                   <input
+                    id="issue-location-input"
                     required
                     type="text"
                     value={location}
@@ -1160,10 +1183,11 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <label htmlFor="issue-desc-textarea" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                     {t.reportIssue.descLabel}
                   </label>
                   <textarea
+                    id="issue-desc-textarea"
                     required
                     rows={4}
                     value={description}
@@ -1256,7 +1280,11 @@ export default function DashboardPage() {
 
             {/* Search complaint */}
             <form onSubmit={handleTrackComplaint} className="glass-card rounded-2xl p-5 border-slate-800 flex gap-3">
+              <label htmlFor="complaint-track-input" className="sr-only">
+                {t.trackComplaint.title}
+              </label>
               <input
+                id="complaint-track-input"
                 required
                 type="text"
                 value={trackId}
