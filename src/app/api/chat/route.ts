@@ -1,333 +1,502 @@
 import { NextResponse } from "next/server";
 
-// Fallback intelligent answers for Demo Mode when GEMINI_API_KEY is not configured
-const mockResponses: Record<"en" | "hi" | "te", Record<string, string>> = {
-  en: {
-    passport: `### **Indian Passport Application Guide**
-1. **Types of Applications**:
-   * **Normal**: Processing takes 15–30 days. Fee: ₹1,500.
-   * **Tatkaal**: Processing takes 1–3 days. Fee: ₹3,500.
-2. **Key Documents Required**:
-   * **Proof of Address**: Aadhaar Card, Water Bill, or Electricity Bill.
-   * **Proof of Date of Birth**: Birth Certificate, Matriculation Certificate, or PAN Card.
-3. **Application Process**:
-   * Register on the [Passport Seva Portal](https://www.passportindia.gov.in/).
-   * Fill out the online application form and pay the fee.
-   * Book an appointment and visit the nearest **Passport Seva Kendra (PSK)** with original documents.
-   * Complete police verification at your address. The passport is delivered via Speed Post.`,
-    aadhaar: `### **Aadhaar Card Enrollment & Updates**
-1. **New Enrollment**: 
-   * Always **Free of cost** at all authorized centers.
-2. **Demographic Details Update (Name, Address, DOB, Gender)**:
-   * Fee: **₹50**. Can be done online via the [MyAadhaar Portal](https://myaadhaar.uidai.gov.in/) or at any Aadhaar Kendra.
-3. **Biometric Details Update (Fingerprints, Iris, Photograph)**:
-   * Fee: **₹100**. Must visit a physical center for biometrics verification.
-4. **Important Documents**:
-   * **Identity Proof**: Passport, PAN, Voter ID, or Driving License.
-   * **Address Proof**: Electricity Bill, Bank Passbook, Water Bill, or Rent Agreement.`,
-    pan: `### **Permanent Account Number (PAN Card) Guide**
-1. **Purpose**: Essential for banking transactions, income tax filing, and as a national identity proof.
-2. **Fees**: 
-   * **e-PAN (Digital Only)**: ₹66 (Ready in 15 minutes).
-   * **Physical Card Delivery**: ₹107 (Delivered to residential address in 7–15 days).
-3. **How to Apply**:
-   * Visit the Protean (NSDL) or UTITSL portal.
-   * Complete **Form 49A** using Aadhaar e-KYC (uses OTP verification).
-   * No physical document submission is required if Aadhaar OTP is used.`,
-    license: `### **Driving License (DL) Process**
-1. **Stage 1: Learner's License (LL)**:
-   * **Eligibility**: Age 16+ for gearless vehicles <50cc, Age 18+ for light motor vehicles.
-   * Apply on [Sarathi Parivahan](https://sarathi.parivahan.gov.in/).
-   * Upload Age Proof (PAN/Class 10 Certificate) and Address Proof.
-   * Pass the online computer traffic test. LL is valid for 6 months.
-2. **Stage 2: Permanent Driving License**:
-   * Apply after 30 days and before 6 months from LL issue date.
-   * Book a driving test slot online and bring your vehicle to the RTO.
-   * Pass the track test to receive the permanent license card via speed post.`,
-    voter: `### **Voter ID (EPIC Card) Registration**
-1. **Eligibility**: Indian citizen, aged 18 or above on the qualifying date of the year.
-2. **Registration Steps**:
-   * Sign up on the [Voters Service Portal](https://voters.eci.gov.in/) or download the **Voter Helpline App**.
-   * Fill out **Form 6** for new voters.
-   * Upload passport size photograph, age proof, and residence proof.
-   * Local Booth Level Officer (BLO) will visit your address for verification.
-   * Your Voter ID card will be dispatched via post for free.`,
-    pension: `### **National Pension Schemes (NSAP)**
-1. **Indira Gandhi National Old Age Pension Scheme (IGNOAPS)**:
-   * **Eligibility**: 60 years and above, belonging to Below Poverty Line (BPL) families.
-   * **Benefits**: Financial support of ₹200–₹500/month (varies by state).
-2. **Widow & Disability Pension**:
-   * Available for BPL widows aged 40–79 and severely disabled individuals.
-3. **How to Apply**:
-   * Visit the local Gram Panchayat, Block Development Office (BDO), or apply on your state's social welfare portal.
-   * Provide BPL Card copy, Age Certificate, and Bank Account details for Direct Benefit Transfer.`,
-    scheme: `### **Key Government Welfare Schemes (India)**
-* **Ayushman Bharat (PM-JAY)**: Provides free health insurance cover of up to ₹5 Lakh per family per year for secondary and tertiary care hospitalization to eligible families.
-* **PM-Kisan Samman Nidhi**: Provides ₹6,000 per year in three equal installments to all landholding farmer families.
-* **PM Awas Yojana (PMAY)**: Provides financial assistance/interest subsidies to build affordable houses for urban and rural families.
-* **Pradhan Mantri Garib Kalyan Anna Yojana (PMGKAY)**: Free food grain distribution program for eligible ration card holders.`,
-    default: `### **Smart Bharat AI Civic Assistant**
-I can guide you through various Indian public services. Please try asking about:
-* **Aadhaar**: Address updates, biometric fees, tracking URN.
-* **Passport**: Fees, document checklists, Tatkaal vs Normal.
-* **PAN Card**: Instant e-PAN, links, income tax registration.
-* **Driving License**: Learner's license, RTO booking, fees.
-* **Voter ID**: New registration Form 6, voter lists.
-* **Pensions**: Welfare schemes, old age pension eligibility.
-* **Government Schemes**: PM-Kisan, Ayushman Bharat health card.`
-  },
-  hi: {
-    passport: `### **भारतीय पासपोर्ट आवेदन गाइड**
-1. **आवेदन के प्रकार**:
-   * **सामान्य (Normal)**: प्रोसेसिंग में 15-30 दिन लगते हैं। शुल्क: ₹1,500।
-   * **तत्काल (Tatkaal)**: प्रोसेसिंग में 1-3 दिन लगते हैं। शुल्क: ₹3,500।
-2. **आवश्यक दस्तावेज़**:
-   * **पते का प्रमाण**: आधार कार्ड, पानी का बिल, या बिजली बिल।
-   * **जन्म तिथि का प्रमाण**: जन्म प्रमाण पत्र, मैट्रिक प्रमाणपत्र, या पैन कार्ड।
-3. **आवेदन प्रक्रिया**:
-   * [पासपोर्ट सेवा पोर्टल](https://www.passportindia.gov.in/) पर पंजीकरण करें।
-   * ऑनलाइन आवेदन भरें और शुल्क का भुगतान करें।
-   * अपॉइंटमेंट बुक करें और मूल दस्तावेजों के साथ निकटतम **पासपोर्ट सेवा केंद्र (PSK)** पर जाएं।
-   * पुलिस सत्यापन पूरा होने के बाद पासपोर्ट स्पीड पोस्ट से घर पहुंच जाएगा।`,
-    aadhaar: `### **आधार कार्ड नामांकन और अपडेट**
-1. **नया नामांकन**: सभी अधिकृत केंद्रों पर हमेशा **निःशुल्क**।
-2. **जनसांख्यिकी अपडेट (नाम, पता, जन्म तिथि)**:
-   * शुल्क: **₹50**। इसे [माईआधार पोर्टल](https://myaadhaar.uidai.gov.in/) या किसी भी आधार केंद्र पर ऑनलाइन किया जा सकता है।
-3. **बायोमेट्रिक अपडेट (उंगलियों के निशान, आईरिस, फोटो)**:
-   * शुल्क: **₹100**। बायोमेट्रिक्स सत्यापन के लिए आधार केंद्र जाना अनिवार्य है।
-4. **महत्वपूर्ण दस्तावेज़**:
-   * **पहचान प्रमाण**: पासपोर्ट, पैन कार्ड, वोटर आईडी, या ड्राइविंग लाइसेंस।
-   * **पता प्रमाण**: बिजली बिल, बैंक पासबुक, पानी का बिल, या किराया समझौता।`,
-    pan: `### **स्थायी खाता संख्या (PAN Card) गाइड**
-1. **महत्व**: बैंकिंग लेनदेन, आयकर रिटर्न दाखिल करने और राष्ट्रीय पहचान प्रमाण के लिए आवश्यक।
-2. **शुल्क**:
-   * **e-PAN (केवल डिजिटल)**: ₹66 (15 मिनट में तैयार)।
-   * **भौतिक कार्ड**: ₹107 (7-15 दिनों में आवासीय पते पर वितरित)।
-3. **आवेदन कैसे करें**:
-   * Protean (NSDL) या UTITSL पोर्टल पर जाएं।
-   * आधार ओटीपी सत्यापन का उपयोग करके **फॉर्म 49A** भरें।
-   * डिजिटल मोड का उपयोग करने पर किसी भौतिक दस्तावेज़ को भेजने की आवश्यकता नहीं है।`,
-    license: `### **ड्राइविंग लाइसेंस (DL) प्रक्रिया**
-1. **चरण 1: लर्नर लाइसेंस (LL)**:
-   * **पात्रता**: बिना गियर वाले वाहनों के लिए 16+ वर्ष, हल्के मोटर वाहनों के लिए 18+ वर्ष।
-   * [सारथी परिवहन पोर्टल](https://sarathi.parivahan.gov.in/) पर आवेदन करें।
-   * आयु और पते का प्रमाण अपलोड करें और ऑनलाइन यातायात नियमों की परीक्षा पास करें।
-2. **चरण 2: स्थायी ड्राइविंग लाइसेंस**:
-   * लर्नर लाइसेंस जारी होने के 30 दिनों के बाद और 6 महीने से पहले आवेदन करें।
-   * ऑनलाइन टेस्ट स्लॉट बुक करें और वाहन के साथ आरटीओ (RTO) जाएं।
-   * परीक्षा पास करने पर स्पीड पोस्ट से स्थायी लाइसेंस कार्ड भेजा जाएगा।`,
-    voter: `### **वoter ID (EPIC Card) पंजीकरण**
-1. **पात्रता**: भारतीय नागरिक, पात्रता तिथि पर 18 वर्ष या उससे अधिक आयु।
-2. **पंजीकरण के चरण**:
-   * [मतदाता सेवा पोर्टल](https://voters.eci.gov.in/) पर पंजीकरण करें या **Voter Helpline App** डाउनलोड करें।
-   * नए मतदाताओं के लिए **फॉर्म 6** भरें।
-   * फोटो, आयु प्रमाण और पते का प्रमाण अपलोड करें।
-   * बूथ स्तर के अधिकारी (BLO) सत्यापन के लिए आपके घर आएंगे।
-   * आपका वोटर आईडी कार्ड डाक द्वारा निःशुल्क भेज दिया जाएगा।`,
-    pension: `### **राष्ट्रीय पेंशन योजनाएं (NSAP)**
-1. **इंदिरा गांधी राष्ट्रीय वृद्धावस्था पेंशन योजना (IGNOAPS)**:
-   * **पात्रता**: 60 वर्ष या उससे अधिक, गरीबी रेखा से नीचे (BPL) परिवार।
-   * **लाभ**: ₹200-₹500/माह वित्तीय सहायता (राज्यों के अनुसार भिन्न)।
-2. **विधवा और विकलांगता पेंशन**:
-   * बीपीएल विधवाओं (आयु 40-79) और गंभीर रूप से विकलांग व्यक्तियों के लिए उपलब्ध।
-3. **आवेदन कैसे करें**:
-   * स्थानीय ग्राम पंचायत, ब्लॉक विकास कार्यालय (BDO) में जाएं या अपने राज्य के सामाजिक कल्याण पोर्टल पर ऑनलाइन आवेदन करें।`,
-    scheme: `### **प्रमुख सरकारी योजनाएं (भारत)**
-* **आयुष्मान भारत (PM-JAY)**: पात्र परिवारों को प्रति वर्ष ₹5 लाख का मुफ्त स्वास्थ्य बीमा प्रदान करता है।
-* **पीएम-किसान सम्मान निधि**: सभी भूमिधारक किसान परिवारों को प्रति वर्ष ₹6,000 की वित्तीय सहायता (तीन किश्तों में) प्रदान करता है।
-* **प्रधानमंत्री आवास योजना (PMAY)**: शहरी और ग्रामीण गरीब परिवारों को घर बनाने के लिए वित्तीय सहायता प्रदान करता है।
-* **पीएम गरीब कल्याण अन्न योजना (PMGKAY)**: पात्र राशन कार्ड धारकों को मुफ्त खाद्यान्न वितरण।`,
-    default: `### **स्मार्ट भारत एआई नागरिक साथी**
-मैं भारतीय नागरिक सेवाओं के बारे में मार्गदर्शन कर सकता हूँ। कृपया इनके बारे में पूछें:
-* **आधार**: पता अपडेट, बायोमेट्रिक शुल्क, यूआरएन ट्रैकिंग।
-* **पासपोर्ट**: शुल्क, आवश्यक दस्तावेज़, तत्काल बनाम सामान्य।
-* **पैन कार्ड**: त्वरित ई-पैन, लिंक, आयकर पंजीकरण।
-* **ड्राइविंग लाइसेंस**: लर्नर लाइसेंस, आरटीओ बुकिंग, शुल्क।
-* **वोटर आईडी**: नया पंजीकरण फॉर्म 6, मतदाता सूची।
-* **पेंशन**: कल्याणकारी योजनाएं, वृद्धावस्था पेंशन पात्रता।
-* **सरकारी योजनाएं**: पीएम-किसान, आयुष्मान भारत स्वास्थ्य कार्ड।`
-  },
-  te: {
-    passport: `### **భారతీయ పాస్‌పోర్ట్ దరఖాస్తు గైడ్**
-1. **దరఖాస్తు రకాలు**:
-   * **సాధారణ (Normal)**: సమయం 15-30 రోజులు. రుసుము: ₹1,500.
-   * **తత్కాల్ (Tatkaal)**: సమయం 1-3 రోజులు. రుసుము: ₹3,500.
-2. **కావలసిన పత్రాలు**:
-   * **చిరునామా రుజువు**: ఆధార్ కార్డ్, నీటి బిల్లు, లేదా విద్యుత్ బిల్లు.
-   * **వయస్సు రుజువు**: పుట్టిన తేదీ ధృవీకరణ పత్రం, పదో తరగతి సర్టిఫికేట్, లేదా పాన్ కార్డ్.
-3. **దరఖాస్తు విధానం**:
-   * [పాస్‌పోర్ట్ సేవా పోర్టల్](https://www.passportindia.gov.in/)లో నమోదు చేసుకోండి.
-   * ఆన్‌లైన్ ఫారమ్ పూర్తి చేసి, రుసుము చెల్లించి, స్లాట్ బుక్ చేసుకోండి.
-   * ఒరిజినల్ పత్రాలతో సమీపంలోని **పాస్‌పోర్ట్ సేవా కేంద్రం (PSK)**ను సందర్శించండి.
-   * పోలీస్ వెరిఫికేషన్ పూర్తయిన తర్వాత పాస్‌పోర్ట్ పోస్ట్ ద్వారా అందుతుంది.`,
-    aadhaar: `### **ఆధార్ కార్డు నమోదు & అప్‌డేట్**
-1. **కొత్త నమోదు**: అధికారిక కేంద్రాల్లో ఎల్లప్పుడూ **ఉచితం**.
-2. **డెమోగ్రాఫిక్ వివరాల అప్‌డేట్ (పేరు, చిరునామా, పుట్టిన తేదీ)**:
-   * రుసుము: **₹50**. [MyAadhaar Portal](https://myaadhaar.uidai.gov.in/) లో లేదా ఆధార్ కేంద్రంలో అప్‌డేట్ చేసుకోవచ్చు.
-3. **బయోమెట్రిక్ అప్‌డేట్ (వేలిముద్రలు, ఐరిస్, ఫోటో)**:
-   * రుసుము: **₹100**. బయోమెట్రిక్ వెరిఫికేషన్ కోసం ఆధార్ కేంద్రానికి వెళ్ళాలి.
-4. **ముఖ్యమైన పత్రాలు**:
-   * **గుర్తింపు రుజువు**: పాస్‌పోర్ట్, పాన్ కార్డ్, ఓటర్ ఐడీ, లేదా డ్రైవింగ్ లైసెన్స్.
-   * **చిరునామా రుజువు**: విద్యుత్ బిల్లు, బ్యాంక్ పాస్‌బుక్, నీటి బిల్లు, అద్దె ఒప్పందం.`,
-    pan: `### **పాన్ కార్డ్ (PAN Card) గైడ్**
-1. **ఉద్దేశ్యం**: బ్యాంకింగ్ లావాదేవీలు, ఐటీ రిటర్న్స్ ఫైలింగ్ మరియు గుర్తింపు రుజువు కోసం తప్పనిసరి.
-2. **రుసుము**:
-   * **ఈ-పాన్ (e-PAN డిజిటల్)**: ₹66 (15 నిమిషాల్లో సిద్ధం అవుతుంది).
-   * **భౌతిక కార్డు**: ₹107 (7-15 రోజుల్లో రిజిస్టర్డ్ చిరునామాకు వస్తుంది).
-3. **ఎలా దరఖాస్తు చేయాలి**:
-   * Protean (NSDL) లేదా UTITSL వెబ్‌సైట్ సందర్శించండి.
-   * ఆధార్ OTP వెరిఫికేషన్ ఉపయోగించి **ఫారమ్ 49A** నింపండి.
-   * డిజిటల్ విధానంలో పత్రాలు పోస్ట్ ద్వారా పంపాల్సిన అవసరం లేదు.`,
-    license: `### **డ్రైవింగ్ లైసెన్స్ (DL) విధానం**
-1. **దశ 1: లర్నర్ లైసెన్స్ (LL)**:
-   * **అర్హత**: గేర్ లేని వాహనాలకు 16+ సంవత్సరాలు, లైట్ మోటార్ వాహనాలకు 18+ సంవత్సరాలు.
-   * [సారథి పరివాహన్ పోర్టల్](https://sarathi.parivahan.gov.in/)లో దరఖాస్తు చేయండి.
-   * వయస్సు, చిరునామా రుజువులను అప్‌లోడ్ చేసి ఆన్‌లైన్ పరీక్ష రాయండి.
-2. **దశ 2: పర్మనెంట్ డ్రైవింగ్ లైసెన్స్**:
-   * లర్నర్ లైసెన్స్ వచ్చిన 30 రోజుల నుండి 6 నెలల లోపు దరఖాస్తు చేసుకోవాలి.
-   * ఆన్‌లైన్ స్లాట్ బుక్ చేసుకుని, వాహనంతో RTO ఆఫీస్ వద్ద డ్రైవింగ్ టెస్ట్ పాస్ అవ్వాలి.`,
-    voter: `### **ఓటర్ ఐడీ (EPIC Card) నమోదు**
-1. **అర్హత**: భారత పౌరుడు, ఓటరుగా నమోదు చేసుకునే సంవత్సరంలో 18 ఏళ్లు నిండి ఉండాలి.
-2. **నమోదు దశలు**:
-   * [Voters Service Portal](https://voters.eci.gov.in/) లో లేదా **Voter Helpline App** ద్వారా నమోదు చేసుకోవచ్చు.
-   * కొత్త ఓటరు కోసం **ఫారమ్ 6** నింపండి.
-   * ఫోటో, వయస్సు మరియు నివాస ధృవీకరణ పత్రాలు అప్‌లోడ్ చేయండి.
-   * బూత్ స్థాయి అధికారి (BLO) వెరిఫికేషన్ కోసం మీ ఇంటికి వస్తారు.
-   * ఆమోదం పొందిన తర్వాత ఓటర్ ఐడీ పోస్ట్ ద్వారా ఉచితంగా పంపబడుతుంది.`,
-    pension: `### **జాతీయ పెన్షన్ పథకాలు (NSAP)**
-1. **ఇందిరా గాంధీ జాతీయ వృద్ధాప్య పెన్షన్**:
-   * **అర్హత**: 60 ఏళ్లు పైబడి ఉండి, దారిద్య్ర రేఖకు దిగువన (BPL) ఉన్న కుటుంబాలు.
-   * **ప్రయోజనాలు**: నెలకు ₹200 నుండి ₹500 ఆర్థిక సహాయం (రాష్ట్రాలను బట్టి మారుతుంది).
-2. **వితంతు & వికలాంగుల పెన్షన్**:
-   * BPL వితంతువులు (వయస్సు 40-79) మరియు తీవ్ర వైకల్యం ఉన్నవారికి లభిస్తుంది.
-3. **ఎలా దరఖాస్తు చేయాలి**:
-   * స్థానిక గ్రామ పంచాయతీ, బ్లాక్ డెవలప్‌మెంట్ ఆఫీస్ (BDO) ద్వారా లేదా సామాజిక సంక్షేమ వెబ్‌సైట్‌లో దరఖాస్తు చేయండి.`,
-    scheme: `### **ప్రభుత్వ సంక్షేమ పథకాలు (భారతదేశం)**
-* **ఆయుష్మాన్ భారత్ (PM-JAY)**: అర్హులైన కుటుంబాలకు సంవత్సరానికి ₹5 లక్షల విలువైన ఉచిత వైద్య బీమా అందిస్తుంది.
-* **పీఎం किसान సమ్మాన్ నిధి**: రైతు కుటుంబాలకు ఏడాదికి ₹6,000 చొప్పున మూడు వాయిదాలలో నేరుగా ఖాతాలో జమ చేస్తుంది.
-* **పీఎం ఆవాస్ యోజన (PMAY)**: పేద కుటుంబాలకు ఇల్లు నిర్మించుకోవడానికి ఆర్థిక సహాయాన్ని అందిస్తుంది.
-* **పీఎం గరీబ్ కళ్యాణ్ అన్న యోజన**: అర్హులైన రేషన్ కార్డ్ హోల్డర్లకు ఉచిత బియ్యం/గోధుమల పంపిణీ.`,
-    default: `### **స్మార్ట్ భారత్ AI సివిక్ అసిస్టెంట్**
-నేను భారతీయ పౌర సేవలకు సంబంధించిన సమాచారాన్ని అందించగలను. కింది వాటి గురించి అడగండి:
-* **ఆధార్**: చిరునామా మార్పు, బయోమెట్రిక్ రుసుము, URN ట్రాకింగ్.
-* **పాస్‌పోర్ట్**: దరఖాస్తు రుసుము, కావాల్సిన పత్రాలు, తత్కాల్ vs నార్మల్.
-* **పాన్ కార్డ్**: తక్షణ ఈ-పాన్, లింకులు, ఆదాయపు పన్ను వివరాలు.
-* **డ్రైవింగ్ లైసెన్స్**: లర్నర్ లైసెన్స్, RTO టెస్ట్ బుకింగ్, రుసుము.
-* **ఓటర్ ఐడీ**: కొత్త ఓటర్ నమోదు ఫారమ్ 6, జాబితా వివరాలు.
-* **పెన్షన్లు**: వృద్ధాప్య పెన్షన్, వితంతు పెన్షన్ అర్హతలు.
-* **ప్రభుత్వ పథకాలు**: పీఎం-కిసాన్, ఆయుష్మాన్ భారత్ హెల్త్ కార్డ్.`
-  }
+type Lang = "en" | "hi" | "te";
+
+const responses: Record<Lang, Record<string, string>> = {
+   en: {
+      compare_pan_aadhaar: `### PAN Card vs Aadhaar Card: When is each required?
+
+| Feature | PAN Card | Aadhaar Card |
+|---|---|---|
+| Main purpose | Tax and financial identity | Resident identity and address proof |
+| Issued by | Income Tax Department | UIDAI |
+| Used for | Income tax, bank accounts, investments, high-value transactions | Identity verification, address proof, subsidies, KYC |
+| Mandatory for | ITR filing, bank KYC, credit cards, mutual funds, salary taxation | Aadhaar-based KYC, welfare schemes, address verification |
+| Can replace the other? | No | No |
+
+### When PAN is required
+- Filing income tax returns.
+- Opening bank accounts.
+- Applying for credit cards or loans.
+- Mutual funds, stocks, and high-value transactions.
+- Business registration and GST-related financial compliance.
+
+### When Aadhaar is required
+- Identity and address verification.
+- Updating address, mobile number, or demographic details.
+- Government subsidy/welfare scheme verification.
+- Aadhaar-based e-KYC.
+- Passport, bank, telecom, and other verification processes.
+
+### Best practical advice
+Keep both updated. PAN is mainly for **financial/tax identity**, while Aadhaar is mainly for **identity/address verification and public-service access**.`,
+
+      moved_city: `### Documents to update after moving to a new city
+
+If you moved from one city to another, update documents in this order:
+
+1. **Aadhaar Address**
+   - Update first because many other services use Aadhaar as address proof.
+   - Documents: rent agreement, electricity bill, bank statement, or other accepted address proof.
+   - Portal: MyAadhaar.
+
+2. **Bank KYC**
+   - Update address with your bank after Aadhaar/address proof is ready.
+   - Documents: Aadhaar, PAN, new address proof.
+
+3. **Driving License**
+   - Apply for address change through Sarathi Parivahan or local RTO.
+   - Documents: existing DL, address proof, ID proof.
+
+4. **Voter ID**
+   - Shift voter registration to the new constituency using the Voters Service Portal.
+   - Documents: photo, address proof, age/identity proof.
+
+5. **Passport**
+   - Update only if your passport address needs correction before travel or renewal.
+   - Documents: current passport, address proof, supporting ID.
+
+### Recommended order
+Aadhaar → Bank KYC → Driving License → Voter ID → Passport if needed.`,
+
+      passport: `### Indian Passport Application Guide
+
+### Who needs this?
+Citizens applying for a new passport, renewing an existing passport, or applying under Tatkaal.
+
+### Types
+- **Normal Passport:** Usually slower, lower fee.
+- **Tatkaal Passport:** Faster processing, higher fee.
+
+### Required documents
+- Proof of identity: Aadhaar, PAN, Voter ID, or Driving License.
+- Proof of address: Aadhaar, electricity bill, bank passbook, rent agreement, or utility bill.
+- Proof of date of birth: Birth certificate, school certificate, PAN, or Aadhaar depending on case.
+- Existing passport if renewing.
+
+### Steps
+1. Register on Passport Seva Portal.
+2. Fill the online application.
+3. Pay the fee.
+4. Book Passport Seva Kendra appointment.
+5. Visit with original documents.
+6. Complete police verification if required.
+7. Receive passport by post.
+
+### Tips
+- Make sure name, DOB, and address match across documents.
+- Carry originals and photocopies.
+- Use Tatkaal only when urgent.`,
+
+      aadhaar: `### Aadhaar Card Enrollment and Update Guide
+
+### Services available
+- New Aadhaar enrollment.
+- Address update.
+- Mobile/email update.
+- Name, DOB, gender correction.
+- Biometric update.
+
+### Documents
+- Identity proof: Passport, PAN, Voter ID, Driving License.
+- Address proof: Electricity bill, bank statement, rent agreement, water bill.
+- DOB proof: Birth certificate, school certificate, passport.
+
+### Steps
+1. Visit MyAadhaar portal for online updates.
+2. For biometric/mobile updates, visit Aadhaar Seva Kendra.
+3. Submit documents.
+4. Keep URN/SRN for tracking.
+
+### Important
+- New Aadhaar enrollment is free.
+- Some updates may have service charges.
+- Biometric updates require physical visit.`,
+
+      pan: `### PAN Card Application Guide
+
+### When PAN is required
+- Income tax filing.
+- Opening bank accounts.
+- Salary and employer taxation.
+- Loans, credit cards, mutual funds, stocks.
+- High-value financial transactions.
+
+### Documents required
+- Identity proof: Aadhaar, passport, voter ID.
+- Address proof: Aadhaar, bank statement, utility bill.
+- DOB proof: Birth certificate, school certificate, passport.
+
+### Steps
+1. Visit Protean/NSDL or UTITSL portal.
+2. Choose Form 49A for Indian citizens.
+3. Complete Aadhaar e-KYC if available.
+4. Pay fee.
+5. Download e-PAN or wait for physical card.
+
+### Tip
+If Aadhaar OTP verification works, the process becomes faster and mostly paperless.`,
+
+      license: `### Driving License Application Guide
+
+### Stage 1: Learner License
+- Eligibility: 18+ for light motor vehicles.
+- Apply on Sarathi Parivahan.
+- Upload age proof and address proof.
+- Pass learner license test.
+
+### Stage 2: Permanent License
+- Apply after 30 days of learner license.
+- Book driving test slot.
+- Visit RTO with vehicle and documents.
+- Pass driving test.
+
+### Documents
+- Aadhaar/PAN/passport for ID proof.
+- Address proof.
+- Age proof.
+- Passport-size photo if required.
+
+### Tips
+- Practice traffic rules before learner test.
+- Carry original documents to RTO.
+- Track application on Sarathi portal.`,
+
+      birth_certificate: `### Birth Certificate Guide
+
+### Why it is needed
+- School admission.
+- Passport application.
+- Aadhaar enrollment.
+- Government records.
+- Legal proof of age and identity.
+
+### Required details
+- Child name, date and place of birth.
+- Parent names.
+- Hospital record or birth report.
+- Address proof of parents.
+
+### How to apply
+1. Visit local municipal corporation/Gram Panchayat portal.
+2. Fill birth registration form.
+3. Upload hospital birth record and parent documents.
+4. Pay fee if applicable.
+5. Download or collect certificate after approval.
+
+### Tip
+Apply as early as possible to avoid late-registration penalties or extra verification.`,
+
+      income_certificate: `### Income Certificate Guide
+
+### Used for
+- Scholarships.
+- Reservation benefits.
+- Fee reimbursement.
+- Welfare schemes.
+- EWS/OBC-related applications.
+
+### Documents
+- Aadhaar.
+- Address proof.
+- Salary slip or income proof.
+- Ration card if available.
+- Self-declaration/affidavit if required.
+- Passport-size photo.
+
+### Steps
+1. Apply through state e-District/MeeSeva/Seva Sindhu portal.
+2. Upload documents.
+3. Revenue officer verifies details.
+4. Download certificate after approval.
+
+### Tip
+Income certificate rules differ by state, so use your state service portal.`,
+
+      ration_card: `### Ration Card Guide
+
+### Purpose
+- Access subsidized food grains.
+- Family identity document.
+- Welfare scheme eligibility proof.
+
+### Documents
+- Aadhaar of family members.
+- Address proof.
+- Income proof if required.
+- Passport-size photo.
+- Existing ration card if transferring.
+
+### Steps
+1. Apply on your state food/civil supplies portal.
+2. Add family member details.
+3. Upload documents.
+4. Verification by local authority.
+5. Download/collect ration card.
+
+### Tip
+Ensure Aadhaar details match each family member correctly.`,
+
+      complaint: `### How to Report a Public Issue
+
+### Common issues
+- Garbage pile-up.
+- Potholes.
+- Street light failure.
+- Water leakage.
+- Drainage overflow.
+- Road damage.
+
+### What to include
+- Issue type.
+- Exact location or landmark.
+- Clear description.
+- Date/time noticed.
+- Photo if portal supports it.
+
+### Good complaint example
+"Large garbage pile has not been collected for 5 days near the main road. It is causing bad smell, attracting stray animals, and creating unsafe conditions for pedestrians."
+
+### After submission
+Save the complaint ID and use it to track progress.`,
+
+      default: `### Smart Bharat AI Civic Assistant
+
+I can help with Indian civic services such as:
+
+- Aadhaar updates
+- PAN card
+- Passport
+- Driving license
+- Voter ID
+- Birth certificate
+- Income certificate
+- Ration card
+- Pension schemes
+- PM Kisan / Ayushman Bharat / PMAY
+- Public issue reporting
+- Complaint tracking
+
+### Try asking:
+- Compare PAN and Aadhaar. When is each required?
+- I moved to Bengaluru. Which documents should I update?
+- What documents are required for a passport?
+- How do I report garbage pile-up?
+- How do I apply for an income certificate?`
+   },
+
+   hi: {
+      default: `### स्मार्ट भारत एआई नागरिक साथी
+
+मैं भारतीय नागरिक सेवाओं में मदद कर सकता हूँ:
+
+- आधार अपडेट
+- पैन कार्ड
+- पासपोर्ट
+- ड्राइविंग लाइसेंस
+- वोटर आईडी
+- जन्म प्रमाण पत्र
+- आय प्रमाण पत्र
+- राशन कार्ड
+- पेंशन योजनाएं
+- सरकारी योजनाएं
+- सार्वजनिक शिकायत दर्ज करना
+
+कृपया अपना सवाल स्पष्ट रूप से लिखें।`,
+      passport: `### पासपोर्ट आवेदन गाइड
+
+पासपोर्ट के लिए पहचान प्रमाण, पते का प्रमाण और जन्म तिथि प्रमाण आवश्यक होते हैं। Passport Seva Portal पर आवेदन करें, शुल्क भरें, अपॉइंटमेंट बुक करें और मूल दस्तावेज़ों के साथ Passport Seva Kendra जाएं।`,
+      aadhaar: `### आधार अपडेट गाइड
+
+आधार में पता, नाम, जन्म तिथि, मोबाइल और बायोमेट्रिक अपडेट किए जा सकते हैं। ऑनलाइन अपडेट के लिए MyAadhaar पोर्टल और बायोमेट्रिक/मोबाइल अपडेट के लिए आधार सेवा केंद्र जाएं।`,
+      pan: `### पैन कार्ड गाइड
+
+PAN कार्ड टैक्स, बैंकिंग, निवेश, क्रेडिट कार्ड, लोन और उच्च मूल्य वित्तीय लेनदेन के लिए आवश्यक है। आवेदन NSDL/Protean या UTITSL पोर्टल से किया जा सकता है।`,
+      license: `### ड्राइविंग लाइसेंस गाइड
+
+पहले Learner License के लिए Sarathi Parivahan पर आवेदन करें। टेस्ट पास करने के बाद 30 दिनों के बाद Permanent Driving License के लिए RTO टेस्ट स्लॉट बुक करें।`,
+      scheme: `### सरकारी योजनाएं
+
+आप PM-Kisan, Ayushman Bharat, PM Awas Yojana, Pension Schemes और अन्य योजनाओं के लिए पात्रता, दस्तावेज़ और आवेदन प्रक्रिया पूछ सकते हैं।`,
+      compare_pan_aadhaar: `### PAN और Aadhaar में अंतर
+
+- PAN मुख्य रूप से टैक्स और वित्तीय पहचान के लिए है।
+- Aadhaar पहचान और पते के सत्यापन के लिए है।
+- PAN बैंकिंग, ITR, निवेश और उच्च मूल्य लेनदेन में ज़रूरी है।
+- Aadhaar KYC, सरकारी योजनाओं और address proof के लिए ज़रूरी है।
+
+दोनों अलग-अलग कामों के लिए ज़रूरी हैं और एक दूसरे का पूरा विकल्प नहीं हैं।`,
+      complaint: `### सार्वजनिक समस्या कैसे रिपोर्ट करें
+
+समस्या का प्रकार, सही स्थान, landmark और clear description दें। शिकायत जमा करने के बाद complaint ID संभालकर रखें।`
+   },
+
+   te: {
+      default: `### స్మార్ట్ భారత్ AI సివిక్ అసిస్టెంట్
+
+నేను భారతీయ పౌర సేవల గురించి సహాయం చేయగలను:
+
+- ఆధార్ అప్‌డేట్
+- పాన్ కార్డ్
+- పాస్‌పోర్ట్
+- డ్రైవింగ్ లైసెన్స్
+- ఓటర్ ఐడీ
+- జనన సర్టిఫికేట్
+- ఆదాయ సర్టిఫికేట్
+- రేషన్ కార్డ్
+- పెన్షన్ పథకాలు
+- ప్రభుత్వ పథకాలు
+- పబ్లిక్ సమస్య రిపోర్టింగ్
+
+మీ ప్రశ్నను స్పష్టంగా టైప్ చేయండి.`,
+      passport: `### పాస్‌పోర్ట్ దరఖాస్తు గైడ్
+
+పాస్‌పోర్ట్ కోసం గుర్తింపు రుజువు, చిరునామా రుజువు, పుట్టిన తేదీ రుజువు అవసరం. Passport Seva Portal లో దరఖాస్తు చేసి, అపాయింట్మెంట్ బుక్ చేసి PSK కి ఒరిజినల్ పత్రాలతో వెళ్లాలి.`,
+      aadhaar: `### ఆధార్ అప్‌డేట్ గైడ్
+
+ఆధార్ లో పేరు, చిరునామా, పుట్టిన తేదీ, మొబైల్ మరియు బయోమెట్రిక్ వివరాలు అప్‌డేట్ చేయవచ్చు. చిరునామా అప్‌డేట్ కోసం MyAadhaar పోర్టల్ ఉపయోగించవచ్చు.`,
+      pan: `### పాన్ కార్డ్ గైడ్
+
+PAN కార్డ్ టాక్స్, బ్యాంకింగ్, పెట్టుబడులు, లోన్స్ మరియు ఫైనాన్షియల్ ట్రాన్సాక్షన్స్ కోసం అవసరం. NSDL/Protean లేదా UTITSL ద్వారా అప్లై చేయవచ్చు.`,
+      license: `### డ్రైవింగ్ లైసెన్స్ గైడ్
+
+మొదట Sarathi Parivahan ద్వారా Learner License కోసం అప్లై చేయాలి. తర్వాత RTO డ్రైవింగ్ టెస్ట్ పాస్ అయితే Permanent License వస్తుంది.`,
+      scheme: `### ప్రభుత్వ పథకాలు
+
+PM-Kisan, Ayushman Bharat, PMAY, Pension Schemes వంటి పథకాల eligibility, documents, application steps గురించి అడగవచ్చు.`,
+      compare_pan_aadhaar: `### PAN మరియు Aadhaar తేడా
+
+- PAN ప్రధానంగా tax మరియు financial identity కోసం.
+- Aadhaar identity మరియు address verification కోసం.
+- PAN banking, ITR, investments, loans కోసం అవసరం.
+- Aadhaar KYC, welfare schemes, address proof కోసం అవసరం.
+
+ఇవి రెండూ వేర్వేరు ప్రయోజనాల కోసం అవసరం.`,
+      complaint: `### పబ్లిక్ సమస్యను ఎలా రిపోర్ట్ చేయాలి
+
+సమస్య రకం, సరైన లొకేషన్, landmark మరియు పూర్తి description ఇవ్వండి. Submit చేసిన తర్వాత complaint ID సేవ్ చేసుకోండి.`
+   }
 };
 
-// Simple helper to find matched topic keywords
-function getFallbackResponse(query: string, lang: "en" | "hi" | "te"): string {
-  const normalized = query.toLowerCase();
-  
-  if (normalized.includes("passport") || normalized.includes("पासपोर्ट") || normalized.includes("పాస్‌పోర్ట్")) {
-    return mockResponses[lang].passport;
-  }
-  if (normalized.includes("aadhaar") || normalized.includes("aadhar") || normalized.includes("आधार") || normalized.includes("ఆధార్")) {
-    return mockResponses[lang].aadhaar;
-  }
-  if (normalized.includes("pan") || normalized.includes("पैन") || normalized.includes("పాన్")) {
-    return mockResponses[lang].pan;
-  }
-  if (normalized.includes("license") || normalized.includes("licence") || normalized.includes("ड्राइविंग") || normalized.includes("లైసెన్స్")) {
-    return mockResponses[lang].driving_license || mockResponses[lang].license; // fallback
-  }
-  if (normalized.includes("voter") || normalized.includes("vote") || normalized.includes("चुनाव") || normalized.includes("ఓటర్")) {
-    return mockResponses[lang].voter;
-  }
-  if (normalized.includes("pension") || normalized.includes("पेंशन") || normalized.includes("పెన్షన్")) {
-    return mockResponses[lang].pension;
-  }
-  if (normalized.includes("scheme") || normalized.includes("yojana") || normalized.includes("योजना") || normalized.includes("పథకం") || normalized.includes("కళ్యాణ్") || normalized.includes("kalyan")) {
-    return mockResponses[lang].scheme;
-  }
-  return mockResponses[lang].default;
+function pickFallback(query: string, lang: Lang): string {
+   const q = query.toLowerCase();
+
+   if (
+      (q.includes("compare") || q.includes("difference") || q.includes("vs")) &&
+      (q.includes("pan") || q.includes("aadhaar") || q.includes("aadhar"))
+   ) {
+      return responses[lang].compare_pan_aadhaar || responses.en.compare_pan_aadhaar;
+   }
+
+   if (
+      q.includes("moved") ||
+      q.includes("married") ||
+      q.includes("change address") ||
+      q.includes("new city") ||
+      q.includes("relocated") ||
+      q.includes("bengaluru") ||
+      q.includes("bangalore")
+   ) {
+      return responses.en.moved_city;
+   }
+
+   if (q.includes("passport") || q.includes("पासपोर्ट") || q.includes("పాస్‌పోర్ట్")) return responses[lang].passport;
+   if (q.includes("aadhaar") || q.includes("aadhar") || q.includes("आधार") || q.includes("ఆధార్")) return responses[lang].aadhaar;
+   if (q.includes("pan") || q.includes("पैन") || q.includes("పాన్")) return responses[lang].pan;
+   if (q.includes("license") || q.includes("licence") || q.includes("driving") || q.includes("ड्राइविंग") || q.includes("లైసెన్స్")) return responses[lang].license;
+   if (q.includes("birth")) return responses.en.birth_certificate;
+   if (q.includes("income")) return responses.en.income_certificate;
+   if (q.includes("ration")) return responses.en.ration_card;
+   if (q.includes("garbage") || q.includes("pothole") || q.includes("streetlight") || q.includes("water leakage") || q.includes("complaint")) return responses[lang].complaint || responses.en.complaint;
+   if (q.includes("scheme") || q.includes("yojana") || q.includes("pm kisan") || q.includes("ayushman") || q.includes("pension")) return responses[lang].scheme;
+
+   return responses[lang].default;
 }
 
 export async function POST(request: Request) {
-  try {
-    const { messages, lang = "en" } = await request.json();
-    
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: "Invalid messages array" }, { status: 400 });
-    }
+   try {
+      const { messages, lang = "en" } = await request.json();
+      const safeLang: Lang = ["en", "hi", "te"].includes(lang) ? lang : "en";
 
-    const lastUserMessage = messages[messages.length - 1]?.content || "";
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    // Check if API key is present
-    if (!apiKey) {
-      const fallbackText = getFallbackResponse(lastUserMessage, lang as "en" | "hi" | "te");
-      return NextResponse.json({
-        content: fallbackText,
-        demoMode: true
-      });
-    }
-
-    // Call Gemini API directly using native fetch
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: messages.map((m: any) => ({
-            role: m.role === "user" ? "user" : "model",
-            parts: [{ text: m.content }]
-          })),
-          systemInstruction: {
-            parts: [{
-              text: `You are Smart Bharat - AI Civic Companion, an advanced virtual portal for Indian citizen services.
-Your role is to help citizens answer questions about Indian government schemes, municipal services, taxes (GST, IT), pensions, documents (Aadhaar, Passport, PAN, Driving License, Voter ID), birth/death certificates, utility connections, etc.
-Guidelines:
-1. Provide accurate, structured, and informative answers using markdown formatting (bullet points, bold text, numbered lists).
-2. Write responses in the language of the request: English, Hindi, or Telugu. The parameter lang specifies the requested output language code: '${lang}'.
-3. Always maintain a polite, civil, and professional tone.
-4. Keep the context focused strictly on India's public administration, government portals, and municipal procedures.`
-            }]
-          },
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 800
-          }
-        })
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+         return NextResponse.json({ error: "Invalid messages array" }, { status: 400 });
       }
-    );
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API error:", errText);
-      // Fallback on HTTP error
-      const fallbackText = getFallbackResponse(lastUserMessage, lang as "en" | "hi" | "te");
+      const lastUserMessage = messages[messages.length - 1]?.content || "";
+      const apiKey = process.env.GEMINI_API_KEY;
+
+      if (!apiKey) {
+         return NextResponse.json({
+            content: pickFallback(lastUserMessage, safeLang),
+            demoMode: true
+         });
+      }
+
+      const response = await fetch(
+         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+         {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+               contents: messages.map((m: any) => ({
+                  role: m.role === "user" ? "user" : "model",
+                  parts: [{ text: m.content }]
+               })),
+               systemInstruction: {
+                  parts: [
+                     {
+                        text: `You are Smart Bharat - AI Civic Companion, a helpful assistant for Indian citizens.
+
+Answer only about Indian civic services, public services, documents, government schemes, municipal complaints, and citizen support.
+
+Use the requested language: ${safeLang}.
+Keep answers clear, structured, practical, and citizen-friendly.
+
+For every answer, include:
+1. Short direct answer
+2. Required documents if relevant
+3. Steps to complete the process
+4. Official portal or department if known
+5. Important caution to verify final details on official government portals`
+                     }
+                  ]
+               },
+               generationConfig: {
+                  temperature: 0.25,
+                  maxOutputTokens: 1000
+               }
+            })
+         }
+      );
+
+      if (!response.ok) {
+         const fallback = pickFallback(lastUserMessage, safeLang);
+         return NextResponse.json({
+            content: `${fallback}\n\n*Note: Live Gemini response was unavailable, so Smart Bharat used its offline civic knowledge fallback.*`,
+            demoMode: true
+         });
+      }
+
+      const data = await response.json();
+      const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!replyText) {
+         return NextResponse.json({
+            content: pickFallback(lastUserMessage, safeLang),
+            demoMode: true
+         });
+      }
+
       return NextResponse.json({
-        content: `${fallbackText}\n\n*(Note: Gemini API returned an error, falling back to smart demo response)*`,
-        demoMode: true
+         content: replyText,
+         demoMode: false
       });
-    }
-
-    const data = await response.json();
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!replyText) {
-      const fallbackText = getFallbackResponse(lastUserMessage, lang as "en" | "hi" | "te");
-      return NextResponse.json({
-        content: fallbackText,
-        demoMode: true
-      });
-    }
-
-    return NextResponse.json({
-      content: replyText,
-      demoMode: false
-    });
-
-  } catch (error: any) {
-    console.error("Chat API route error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
-  }
+   } catch (error: any) {
+      return NextResponse.json(
+         { error: error.message || "Internal Server Error" },
+         { status: 500 }
+      );
+   }
 }
