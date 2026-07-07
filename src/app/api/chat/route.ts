@@ -513,7 +513,15 @@ For every answer, include:
       }
 
       const data = await response.json();
-      const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      console.log("Gemini Response:", JSON.stringify(data, null, 2));
+
+      const replyText =
+         data?.candidates?.[0]?.content?.parts
+            ?.map((p: any) => p.text)
+            .filter(Boolean)
+            .join("\n") ||
+         null;
 
       if (!replyText) {
          return NextResponse.json({
